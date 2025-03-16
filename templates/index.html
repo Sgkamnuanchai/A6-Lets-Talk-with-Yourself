@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0-alpha1/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4fdf4; /* Light green background */
+            color: #2e8b57; /* Green text color */
+        }
+        .card {
+            border-radius: 10px;
+            border: none;
+        }
+        .card-header {
+            background-color: #28a745; /* Green header */
+            color: white;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .card-body {
+            background-color: #e6f9e6; /* Lighter green background for the chat */
+        }
+        .chat-box {
+            border: 1px solid #28a745; /* Green border for the chat box */
+            padding: 15px;
+            background-color: #fff;
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 10px;
+        }
+        .chat-entry {
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 8px;
+        }
+        .chat-entry.bot {
+            background-color: #d9f7d9; /* Light green for bot responses */
+            text-align: left;
+        }
+        .chat-entry.user {
+            background-color: #a8e6a1; /* Medium green for user messages */
+            text-align: right;
+        }
+        .chat-form {
+            display: flex;
+            margin-top: 10px;
+        }
+        .chat-form input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #28a745; /* Green border for the input */
+            background-color: #f0fdf0; /* Light green input field */
+        }
+        .chat-form button {
+            background-color: #28a745; /* Green button */
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .chat-form button:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+        .card-footer {
+            background-color: #e6f9e6;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card mt-5">
+                    <div class="card-header text-center">
+                        <h3>SonakulBot</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="chat-box" class="chat-box">
+                            <!-- Chat messages will appear here -->
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <form id="chat-form" class="chat-form">
+                            <input type="text" id="user-input" class="form-control" placeholder="Ask me anything..." required />
+                            <button type="submit">Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const chatBox = document.getElementById('chat-box');
+
+        // Function to append chat messages to the chat box
+        function appendChatMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-entry', sender);
+            messageDiv.textContent = message;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+        }
+
+        // Handle form submission
+        chatForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const userMessage = userInput.value.trim();
+            if (userMessage) {
+                // Display the user's message
+                appendChatMessage(userMessage, 'user');
+                userInput.value = '';
+
+                // Send the user's message to the Flask backend
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: userMessage })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Display the bot's response
+                    appendChatMessage(data.response, 'bot');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    appendChatMessage("Sorry, I couldn't get a response. Please try again.", 'bot');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
