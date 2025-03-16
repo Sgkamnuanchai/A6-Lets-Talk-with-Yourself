@@ -41,6 +41,7 @@ T5 generates an answer based on a given prompt (or query). It can generate fluen
 
 ### 5. How to solve it:
 - RAG Approach: Combines both models to retrieve relevant documents and generate contextually accurate responses. Fine-tuning both the retriever (FAISS) and the generator (T5) on domain-specific data can drastically improve the relevance and accuracy of the answers.
+- The question-answer pairs has stored in questions_answers.json
 
 ## 6. How to run the application:
 python app.py
